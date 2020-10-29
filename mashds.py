@@ -12,25 +12,25 @@ with open('config.json', 'r') as f:
 	config = json.load(f)
 
 client = Bot(command_prefix=list(config['prefix']))
-mpdclient = MPDClient()
-mpdclient.connect(config['mpd_hostname'], int(config['mpd_port']))
-
-if len(config['mpd_password']) > 0:
-	mpdclient.password(config['mpd_password'])
 
 def parse_song_name():
-	song_data = mpdclient.currentsong()
+    mpdclient = MPDClient()
+    mpdclient.connect(config['mpd_hostname'], int(config['mpd_port']))
+    if len(config['mpd_password']) > 0:
+	    mpdclient.password(config['mpd_password'])
 
-	if 'title' not in song_data:
-		return os.path.splitext(os.path.basename(song_data['file']))[0]
-	artist = song_data['artist']
-	return '{}'.format(title)
+    song_data = mpdclient.currentsong()
+    if 'title' not in song_data:
+        return os.path.splitext(os.path.basename(song_data['file']))[0]
+    title = song_data['title']
+    mpdclient.disconnect()
+    return title
 
 async def status_task():
     while True:
         track = parse_song_name()
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track))
-        await asyncio.sleep(7)
+        await asyncio.sleep(8)
 
 @client.event
 async def on_ready():
