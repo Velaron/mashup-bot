@@ -1,2 +1,3 @@
-# simple-mpd-discord-bot
-requirements: discord.py python-mpd2
+# DSAud
+requirements: discord.py python-mpd2 <br>
+Prefix and token set on config.json
