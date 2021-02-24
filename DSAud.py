@@ -29,16 +29,18 @@ def parse_song_name():
 async def status_task():
     while True:
         track = parse_song_name()
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track+" |   Запуск: "+config['prefix']+'p'))
         await asyncio.sleep(8)
 
 @client.event
 async def on_ready():
     client.loop.create_task(status_task())
 
+
 @client.command(aliases=['p'])
 async def play(ctx):
-    await ctx.send('Привет! Подожди, идет кеширование\nНе забывай писать ``-s`` для остановки, когда выходишь')
+    main_message = discord.Embed(title='Привет! Подожди, идет кеширование\nНе забывай писать ``-s`` для остановки, когда выходишь', colour=discord.Color.green())
+    await ctx.send(embed=main_message)
     channel = ctx.message.author.voice.channel
     global player
     try:
@@ -46,11 +48,15 @@ async def play(ctx):
     except:
         pass
     player.play(FFmpegPCMAudio(config['source']))
+    track = parse_song_name()
+    track_message = discord.Embed(title='Текущий трек:', description=track, colour=discord.Color.green())
+    await ctx.send(embed=track_message)
 
 @client.command(aliases=['s'])
 async def stop(ctx):
     player.stop()
     await ctx.guild.voice_client.disconnect()
     await ctx.send('Пока!')
+
 
 client.run(config['token'])
