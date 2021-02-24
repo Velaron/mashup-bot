@@ -18,6 +18,16 @@ DATA = config['sources'][0]
 
 client = Bot(command_prefix=list(config['prefix']))
 
+def parse_song_name_status(): #main status
+    mpdclient = MPDClient()
+    mpdclient.connect('62.109.19.65', '6600')
+    song_data = mpdclient.currentsong()
+    if 'title' not in song_data:
+        return os.path.splitext(os.path.basename(song_data['file']))[0]
+    title = song_data['title']
+    mpdclient.disconnect()
+    return title
+
 def parse_song_name():
     mpdclient = MPDClient()
     mpdclient.connect(DATA['mpd_hostname'], int(DATA['mpd_port']))
@@ -33,7 +43,7 @@ def parse_song_name():
 
 async def status_task():
     while True:
-        track = parse_song_name()
+        track = parse_song_name_status()
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track+" |   Помощь: "+config['prefix']+'h'))
         await asyncio.sleep(8)
 
@@ -65,7 +75,12 @@ async def play(ctx, change=False):
     player.play(FFmpegPCMAudio(DATA['source']))
     track = parse_song_name()
     track_message = discord.Embed(title='Текущий трек:', description=track, colour=discord.Color.green())
-    await ctx.send(embed=track_message)
+    msg = await ctx.send(embed=track_message)
+    while True:
+        track_new = parse_song_name()
+        track_upd = discord.Embed(title='Текущий трек:', description=track_new, colour=discord.Color.green())
+        await msg.edit(embed=track_upd)
+        await asyncio.sleep(8)
 
 @client.command(aliases=['s'])
 async def stop(ctx):
