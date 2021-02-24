@@ -47,9 +47,19 @@ async def status_task():
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track+" |   Помощь: "+config['prefix']+'h'))
         await asyncio.sleep(8)
 
+async def send_track(ctx):
+    track = parse_song_name()
+    track_message = discord.Embed(title='Текущий трек:', description=track, colour=discord.Color.green())
+    msg = await ctx.send(embed=track_message)
+    while True:
+        track_new = parse_song_name()
+        track_upd = discord.Embed(title='Текущий трек:', description=track_new, colour=discord.Color.green())
+        track_message = await msg.edit(embed=track_upd)
+        await asyncio.sleep(5)
+
 @client.command(aliases=['h'])
 async def hlp(ctx):
-    help_message = discord.Embed(title='Команды бота:', description=f'Основное:\n'+config['prefix']+'p- включить радио\n'+config['prefix']+'s- остановить\n'+config['prefix']+'c- сменить канал\n______________________\nРадиостанции:\n0) mashup radio - beats to napas\n1) mashup radio - 1.kla$ only\n2) Random rock radio [24/7] || RockCafe Radio', colour=discord.Color.green())
+    help_message = discord.Embed(title='Команды бота:', description='Основное:\n'+config['prefix']+'p- включить радио\n'+config['prefix']+'s- остановить\n'+config['prefix']+'c- сменить канал\n______________________\nРадиостанции:\n0) mashup radio - beats to napas\n1) mashup radio - 1.kla$ only\n2) Random rock radio [24/7] || RockCafe Radio', colour=discord.Color.green())
     await ctx.send(embed=help_message)
 
 @client.event
@@ -61,11 +71,15 @@ async def play(ctx, change=False):
 
     if not change:
         main_message = discord.Embed(title='Привет! Подожди, идет кеширование\nНе забывай писать ``'+config['prefix']+'s`` для остановки, когда выходишь', colour=discord.Color.green())
-        await ctx.send(embed=main_message)
+        msg = await ctx.send(embed=main_message)
+        await asyncio.sleep(2)
+        await msg.delete()
     else: 
         main_message = discord.Embed(title='Подожди! Идет смена сервера!\nНе забывай писать ``'+config['prefix']+'s`` для остановки, когда выходишь', colour=discord.Color.green())
-        await ctx.send(embed=main_message)
-
+        msg = await ctx.send(embed=main_message)
+        await asyncio.sleep(2)
+        await msg.delete()
+    
     channel = ctx.message.author.voice.channel
     global player
     try:
@@ -73,14 +87,7 @@ async def play(ctx, change=False):
     except:
         pass
     player.play(FFmpegPCMAudio(DATA['source']))
-    track = parse_song_name()
-    track_message = discord.Embed(title='Текущий трек:', description=track, colour=discord.Color.green())
-    msg = await ctx.send(embed=track_message)
-    while True:
-        track_new = parse_song_name()
-        track_upd = discord.Embed(title='Текущий трек:', description=track_new, colour=discord.Color.green())
-        await msg.edit(embed=track_upd)
-        await asyncio.sleep(8)
+    await send_track(ctx)
 
 @client.command(aliases=['s'])
 async def stop(ctx):
@@ -99,7 +106,13 @@ async def change(ctx):
         index = int(splited[1]) if splited[1].isdigit() else None
 
         if index == None:
-            await ctx.send('Индекс должен быть числом!')
+            msg = discord.Embed(title='Ошибка!', description='Значение должно быть числом', colour=discord.Color.green())
+            await ctx.send(embed=msg)
+            return
+        
+        if index > 2:
+            msg = discord.Embed(title='Ошибка!', description='Такого радио нет', colour=discord.Color.green())
+            await ctx.send(embed=msg)
             return
         global DATA
         DATA = config['sources'][index]
