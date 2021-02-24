@@ -1,7 +1,8 @@
 {	
 	"token": "",
-	"prefix": "",
+	"prefix": "!",
 	"mpd_hostname": "",
 	"mpd_port": "",
-	"mpd_password": ""
+	"mpd_password": "",
+	"source": "http://62.109.19.65:8000"
 }
