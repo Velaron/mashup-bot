@@ -10,10 +10,8 @@ from mpd import MPDClient
 config = {}
 with open('config.json', 'r') as f:
 	config = json.load(f)
-
 if not config['sources']:
     exit('sources не должен быть пуст!')
-
 DATA = config['sources'][0]
 
 client = Bot(command_prefix=list(config['prefix']))
@@ -57,14 +55,23 @@ async def send_track(ctx):
         track_message = await msg.edit(embed=track_upd)
         await asyncio.sleep(5)
 
-@client.command(aliases=['h'])
-async def hlp(ctx):
-    help_message = discord.Embed(title='Команды бота:', description='Основное:\n'+config['prefix']+'p- включить радио\n'+config['prefix']+'s- остановить\n'+config['prefix']+'c- сменить канал\n______________________\nРадиостанции:\n0) mashup radio - beats to napas\n1) mashup radio - 1.kla$ only\n2) Random rock radio [24/7] || RockCafe Radio', colour=discord.Color.green())
-    await ctx.send(embed=help_message)
-
 @client.event
 async def on_ready():
     client.loop.create_task(status_task())
+    print('Бот запущен!\nИмя: {}' + str(client.user.name))
+
+@client.event
+async def on_guild_join(guild):
+    for channel in guild.text_channels:
+        if channel.permissions_for(guild.me).send_messages:
+            embed = discord.Embed(title='Спасибо, что вы добавили бота к себе на сервер!', description='Для ознакомления с командами напиши ``'+config['prefix']+'h``', colour=discord.Color.green())
+            await channel.send(embed=embed)
+        break
+
+@client.command(aliases=['h'])
+async def hlp(ctx):
+    help_message = discord.Embed(title='Команды бота:', description='Основное:\n'+config['prefix']+'p- включить радио\n'+config['prefix']+'s- остановить\n'+config['prefix']+'c- сменить канал\n______________________\nРадиостанции:\n0) mashup radio - beats to napas\n1) mashup radio - 1.kla$ only\n2) Random rock radio [24/7] || RockCafe Radio\n\nПожалуйста, останавливайте бота, когдв выходите', colour=discord.Color.green())
+    await ctx.send(embed=help_message)
 
 @client.command(aliases=['p'])
 async def play(ctx, change=False):
@@ -96,9 +103,7 @@ async def stop(ctx):
     player.stop()
     await ctx.guild.voice_client.disconnect()
     await ctx.send('Пока!')
-    
     player = None
-
 
 @client.command(aliases=['c'])
 async def change(ctx):
