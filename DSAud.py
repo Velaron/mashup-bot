@@ -44,7 +44,7 @@ def parse_song_name():
 async def status_task():
     while True:
         track = parse_song_name_status()
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track+" |   Помощь: "+config['prefix']+'h'))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=track+" |  Помощь: "+config['prefix']+'h'))
         await asyncio.sleep(8)
 
 async def send_track(ctx):
@@ -86,7 +86,8 @@ async def play(ctx, change=False):
         player = await channel.connect()
     except:
         pass
-    player.play(FFmpegPCMAudio(DATA['source']))
+    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10', 'options': '-vn'}
+    player.play(FFmpegPCMAudio(DATA['source'],**FFMPEG_OPTIONS))
     await send_track(ctx)
 
 @client.command(aliases=['s'])
