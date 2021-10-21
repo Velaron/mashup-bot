@@ -1,0 +1,17 @@
+{	
+	"token": "whatever",
+	"debug_guilds": [1, 2, 3],
+	"status_host": "127.0.0.1",
+	"status_port": "6600",
+	"sources": 
+	[
+		{
+			"name": "name",
+			"description": "desc",
+			"mpd_hostname": "127.0.0.1",
+			"mpd_port": "6600",
+			"mpd_password": "secret",
+			"source": "http://127.0.0.1:8000"
+		}
+	]
+}
