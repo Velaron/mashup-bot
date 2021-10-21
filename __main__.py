@@ -38,13 +38,7 @@ FFMPEG_OPTIONS = {
 
 config: Config = Config()
 
-intents = discord.Intents.default()
-intents.members = True
-
-bot: discord.Bot = discord.Bot(
-    debug_guilds=config.debug_guilds,
-    intents=intents
-)
+bot: discord.Bot = discord.Bot(debug_guilds=config.debug_guilds)
 
 client = MPDClient()
 
@@ -99,9 +93,10 @@ async def update_presence():
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
     player = Player.get(member.guild)
 
-    if after.channel != player.voice_client.channel and len(before.channel.members) < 2:
-        # leave if bot is alone
-        await player.stop()
+    if after.channel != player.voice_client.channel:
+        if len(before.channel.voice_states.keys) < 2:
+            # leave if bot is alone
+            await player.stop()
 
     player.voice_client = member.guild.voice_client
 
