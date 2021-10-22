@@ -92,13 +92,12 @@ async def update_presence():
 @bot.event
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
     player = Player.get(member.guild)
+    player.voice_client = member.guild.voice_client
 
-    if after.channel != player.voice_client.channel:
-        if len(before.channel.voice_states.keys) < 2:
+    if player.voice_client:
+        if len(player.voice_client.channel.voice_states.keys()) == 1:
             # leave if bot is alone
             await player.stop()
-
-    player.voice_client = member.guild.voice_client
 
 
 @bot.event
