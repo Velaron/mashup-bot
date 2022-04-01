@@ -3,10 +3,10 @@ import os
 from typing import Any
 
 import discord
+from discord import Intents
 from discord.commands import Option
 from discord.commands.errors import ApplicationCommandError
 from discord.ext import tasks
-
 from mpd.asyncio import MPDClient
 
 
@@ -38,7 +38,10 @@ FFMPEG_OPTIONS = {
 
 config: Config = Config()
 
-bot: discord.Bot = discord.Bot(debug_guilds=config.debug_guilds)
+bot: discord.Bot = discord.Bot(
+    debug_guilds=config.debug_guilds,
+    intents=Intents.default(),
+)
 
 client = MPDClient()
 
@@ -155,6 +158,11 @@ async def ensure_voice(ctx):
                 color=discord.Color.red()
             )
             await ctx.respond(embed=embed, ephemeral=True)
-            raise ApplicationCommandError('User not connected to a voice channel.')
+            raise ApplicationCommandError(
+                'User not connected to a voice channel.')
 
-bot.run(config.token)
+def main():
+    bot.run(config.token)
+
+if __name__ == "__main__":
+    main()
