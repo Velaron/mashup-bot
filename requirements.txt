@@ -1,2 +1,2 @@
-git+https://github.com/Pycord-Development/pycord@96ed955#egg=py-cord[voice]
+git+https://github.com/Pycord-Development/pycord@c071d08#egg=py-cord[voice]
 python-mpd2 >= 3.0.4

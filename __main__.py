@@ -57,7 +57,6 @@ class Player:
         self.voice_client.play(audio)
 
     async def stop(self):
-        self.voice_client.stop()
         await self.voice_client.disconnect()
         Player.instances.remove(self)
 
